@@ -1,8 +1,6 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using parcial_1._Models;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace parcial_1._Services;
 

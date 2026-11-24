@@ -5,12 +5,21 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:vm="clr-namespace:parcial_1._ViewModels"
     xmlns:model="clr-namespace:parcial_1._Models"
+    xmlns:converters="clr-namespace:parcial_1._Converters"
     x:DataType="vm:ViewListViewModel"
     Title="Razas de perros">
 
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <converters:BreedSelectionConverter
+            x:Key="BreedSelectionConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
+
+
     <Grid Padding="16"
           RowDefinitions="Auto,Auto,*,Auto"
-          RowSpacing="10">
+          RowSpacing="20">
 
         <ActivityIndicator
             Grid.Row="0"
@@ -26,8 +35,15 @@
         <CollectionView
             Grid.Row="2"
             ItemsSource="{Binding Breeds}"
-            SelectionMode="None"
-            ItemsLayout="VerticalGrid, 2">
+            SelectionMode="None">
+
+            <CollectionView.ItemsLayout>
+                <GridItemsLayout
+                    Orientation="Vertical"
+                    Span="2"
+                    HorizontalItemSpacing="8"
+                    VerticalItemSpacing="8" />
+            </CollectionView.ItemsLayout>
 
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="model:DogBreed">
@@ -36,13 +52,27 @@
                         Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.SelectBreedCommand}"
                         CommandParameter="{Binding .}"
                         Padding="8,16"
-                        Margin="0,2"
-                        BackgroundColor="White"
-                        TextColor="Black"
                         BorderColor="LightGray"
                         BorderWidth="1"
                         CornerRadius="8"
-                        HorizontalOptions="Fill" />
+                        HorizontalOptions="Fill">
+
+                        <Button.Triggers>
+                            <DataTrigger TargetType="Button" Value="True">
+                                <DataTrigger.Binding>
+                                    <MultiBinding Converter="{StaticResource BreedSelectionConverter}">
+                                        <Binding Path="." />
+                                        <Binding
+                                            Path="BindingContext.SelectedBreed"
+                                            Source="{RelativeSource AncestorType={x:Type ContentPage}}" />
+                                    </MultiBinding>
+                                </DataTrigger.Binding>
+
+                                <Setter Property="BackgroundColor" Value="Black" />
+                                <Setter Property="TextColor" Value="White" />
+                            </DataTrigger>
+                        </Button.Triggers>
+                    </Button>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
 
