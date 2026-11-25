@@ -6,9 +6,17 @@ on:
   pull_request:
     branches: [ "main" ]
 
+env:
+  NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        configuration: [Debug, Release]
 
     steps:
     - uses: actions/checkout@v4
@@ -18,5 +26,42 @@ jobs:
       with:
         dotnet-version: 10.0.x
 
+    - name: Install MAUI Android workload
+      run: dotnet workload install maui-android
+
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ${{ env.NUGET_PACKAGES }}
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.slnx') }}
+        restore-keys: |
+          ${{ runner.os }}-nuget-
+
+    - name: Restore dependencies
+      run: |
+        dotnet restore parcial-1-tests/parcial-1-tests.csproj
+        dotnet restore parcial-1/parcial-1.csproj -p:TargetFrameworks=net10.0-android
+
+    - name: Build
+      run: |
+        dotnet build parcial-1-tests/parcial-1-tests.csproj -c ${{ matrix.configuration }} --no-restore
+        dotnet build parcial-1/parcial-1.csproj -c ${{ matrix.configuration }} -f net10.0-android -p:TargetFrameworks=net10.0-android --no-restore
+
     - name: Test
-      run: dotnet test parcial-1-tests/parcial-1-tests.csproj --verbosity normal
+      run: dotnet test parcial-1-tests/parcial-1-tests.csproj -c ${{ matrix.configuration }} --no-build --verbosity normal --logger "trx;LogFileName=results.trx" --results-directory ${{ github.workspace }}/artifacts/test-results
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results-${{ matrix.os }}-${{ matrix.configuration }}
+        path: artifacts/test-results/**/*.trx
+        if-no-files-found: warn
+
+    - name: Upload Android app
+      if: success()
+      uses: actions/upload-artifact@v4
+      with:
+        name: maui-android-${{ matrix.os }}-${{ matrix.configuration }}
+        path: parcial-1/bin/${{ matrix.configuration }}/net10.0-android/com.companyname.parcial1-Signed.apk
+        if-no-files-found: warn
