@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>parcial_1_tests</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.110" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <!-- Compile the app's platform-independent code so the tests exercise the real source. -->
+  <ItemGroup>
+    <Compile Include="..\parcial-1\_Converters\*.cs" Link="App\_Converters\%(Filename)%(Extension)" />
+    <Compile Include="..\parcial-1\_Models\*.cs" Link="App\_Models\%(Filename)%(Extension)" />
+    <Compile Include="..\parcial-1\_Services\*.cs" Link="App\_Services\%(Filename)%(Extension)" />
+    <Compile Include="..\parcial-1\_ViewModels\*.cs" Link="App\_ViewModels\%(Filename)%(Extension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>

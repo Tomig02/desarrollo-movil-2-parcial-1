@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="parcial-1/parcial-1.csproj" />
+  <Project Path="parcial-1-tests/parcial-1-tests.csproj" />
 </Solution>
