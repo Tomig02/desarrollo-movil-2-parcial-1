@@ -1,5 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Maui.ApplicationModel;
+using Microsoft.Maui.Devices;
 using parcial_1._Models;
 using parcial_1._Services;
 using parcial_1._Views;
@@ -76,5 +78,42 @@ public partial class ViewListViewModel : ObservableObject
 
         await Shell.Current.GoToAsync(
             $"{nameof(BreedDetailsView)}?breedId={Uri.EscapeDataString(SelectedBreed.Id)}");
+    }
+
+    [RelayCommand]
+    private void Vibrate()
+    {
+#if ANDROID || IOS
+        if (Vibration.Default.IsSupported)
+            Vibration.Default.Vibrate(TimeSpan.FromMilliseconds(250));
+#elif WINDOWS        
+        ErrorMessage = "No se puede vibrar en Windows.";
+#endif
+    }
+
+    [RelayCommand]
+    private async Task RequestLocationPermissionAsync()
+    {
+#if ANDROID || IOS
+        try
+        {
+            var status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+
+            if (status == PermissionStatus.Granted)
+            {
+                // Permiso concedido
+            }
+            else
+            {
+                // Permiso denegado
+            }
+        }
+        catch (PermissionException ex)
+        {
+            ErrorMessage = ex.Message;
+        }
+#elif WINDOWS
+        ErrorMessage = "La ubicación no está disponible en Windows.";
+#endif
     }
 }
